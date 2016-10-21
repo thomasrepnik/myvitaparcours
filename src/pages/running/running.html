@@ -40,8 +40,8 @@
     </ion-grid>
   </ion-card>
 
-  <svg [ngClass]="setClasses()" *ngFor="let station of track.stations; let i=index" xmlns="http://www.w3.org/2000/svg">
-    <text x="25" y="35" font-family="Arial" font-size="30" font-weight="bold" text-anchor="middle" fill="white">1</text>
+  <svg #stationSvg [ngClass]="setClasses(i)" *ngFor="let station of track.stations; let i=index" xmlns="http://www.w3.org/2000/svg">
+    <text x="25" y="35" font-family="Arial" font-size="30" font-weight="bold" text-anchor="middle" fill="white">{{i + 1}}</text>
   </svg>
 
 </ion-content>

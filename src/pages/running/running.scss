@@ -13,6 +13,10 @@
   animation: fill .4s ease-in-out .4s forwards, scale .4s ease-in-out .9s both;
 }
 
+$color-green: #7ac142;
+$color-red: #ff0000;
+
+
 .unvisited {
   width: 50px;
   height: 50px;
@@ -22,18 +26,18 @@
   stroke: #fff;
   stroke-miterlimit: 10;
   margin-left: 10px;
-  background: $color--green;
-  box-shadow: inset 0px 0px 0px $color--green;
+  background: $color-red;
+  box-shadow: inset 0px 0px 0px $color-red;
 
 }
 
 @keyframes fill {
   50% {
     transform: scale3d(1.5, 1.5, 1);
-    box-shadow: inset 0px 0px 0px $color--green;
+    box-shadow: inset 0px 0px 0px $color-red;
   }
   100% {
-    box-shadow: inset 0px 0px 0px 30px #FF0000;
+    box-shadow: inset 0px 0px 0px 30px $color-green;
   }
 }
 

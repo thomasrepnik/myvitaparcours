@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChildren } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import {Track} from "../../providers/track-service/track-service";
 import {Observable} from 'rxjs/Rx';
@@ -11,13 +11,16 @@ export class RunningPage {
 
   public track: Track;
 
+  @ViewChildren('stationSvg')
+  stationSVGs;
+
   constructor(public navCtrl: NavController, public params:NavParams) {
     this.track = params.get("track");
   }
 
 
   ngAfterViewInit(){
-    let timer = Observable.timer(2000,1000);
+    let timer = Observable.timer(2000,5000);
     timer.subscribe(t => this.tickerFunc(t));
   }
 
@@ -27,10 +30,10 @@ export class RunningPage {
     }
   }
 
-  setClasses() {
+  setClasses(index: number) {
     let classes =  {
-      unvisited: true, 
-      visited: true
+      unvisited: true,
+      visited: this.track.stations[index].visited
     };
     return classes;
   }

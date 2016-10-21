@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Lauf Forrest lauf....</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <p>{{track.name}}</p>
+  <div id="#stationWrapper">
+    <div class="station" *ngFor="let track of tracks; let i=index">1</div>
+
+  </div>
+</ion-content>
+
+
+<div id="circle"></div>

@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Vitaparcours erfassen</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <div #map id="map"></div>
+  <p>
+    <button ion-button icon-left (click)="toggleRecording()">
+      <ion-icon name='recording'></ion-icon>
+      {{toggleCaption}}
+    </button>
+    <button ion-button icon-left (click)="addExcercisePosition()">
+      <ion-icon name='add-circle'></ion-icon>
+    </button>
+    <button ion-button icon-left (click)="showSavePrompt()">
+      <ion-icon name='save'></ion-icon>
+    </button>
+  </p>
+
+  <ion-list>
+    <ion-item-sliding *ngFor="let marker of stationMarkers; let i=index">
+      <ion-item>
+        <ion-icon name="body" item-left></ion-icon>
+        <h2>Posten {{i + 1}}</h2>
+        <p>Lat: {{marker.getPosition().lat()}}, Lng: {{marker.getPosition().lng()}}</p>
+      </ion-item>
+      <ion-item-options side="right">
+        <button ion-button icon-left (click)="deleteExcercise(marker)">
+          <ion-icon name="trash"></ion-icon>
+          Löschen
+        </button>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+
+</ion-content>
+

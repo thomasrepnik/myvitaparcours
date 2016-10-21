@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Einstellungen</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-list>
+    <ion-list-header>
+      Generell
+    </ion-list-header>
+    <ion-item>
+      <ion-icon name="leaf" item-left></ion-icon>
+      Herbology
+      <ion-toggle checked="false"></ion-toggle>
+    </ion-item>
+  </ion-list>
+  <button ion-button color="danger" block (click)="clearDatabase()">Clear Database</button>
+</ion-content>

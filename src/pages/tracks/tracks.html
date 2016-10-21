@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Vitaparcours erfassen</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-card *ngFor="let track of tracks; let i=index" (click)="goToRunningPage(track)">
+    <ion-card-header>
+      {{track.name}}
+    </ion-card-header>
+    <ion-card-content>
+      <b>Länge: </b>{{track.distanceInMeters | number:'1.0-0'}}m
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -1,0 +1,25 @@
+
+$stationCircle-size: 50px;
+
+.station {
+  width: $stationCircle-size;
+  height: $stationCircle-size;
+  -webkit-border-radius: $stationCircle-size / 2;
+  -moz-border-radius: $stationCircle-size / 2;
+  border-radius: $stationCircle-size / 2;
+  background: red;
+  float: left;
+  margin-right: 10px;
+  margin-bottom: 10px;
+
+  /* Center Text in Div */
+  text-align: center;
+  line-height: $stationCircle-size;
+  vertical-align: middle;
+}
+
+#stationWrapper {
+  width: 100%;
+  border: 1px solid black;
+  overflow: hidden; /* add this to contain floated children */
+}

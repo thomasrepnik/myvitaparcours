@@ -1,7 +1,8 @@
-import {IPosition, Position, Track} from "../../providers/track-service/track-service";
+import {Position, Track} from "../../providers/track-service/track-service";
 import {isUndefined} from "ionic-angular/util/util";
 
 import 'rxjs/Rx';
+import {Station} from "../running/station";
 
 
 declare var google;
@@ -10,9 +11,9 @@ export class MapController {
   stationMarkers:any = [];
   currentPositionMarker:any;
   map:any;
-  startPoint:IPosition;
-  wayPoints:Array<IPosition> = [];
-  stationPoints:Array<IPosition> = [];
+  startPoint:Position;
+  wayPoints:Array<Position> = [];
+  stationPoints:Array<Station> = [];
   polyline:any;
 
   locatorImage:any = {
@@ -44,7 +45,7 @@ export class MapController {
     return this.stationMarkers;
   }
 
-  public updateCurrentPosition(position:IPosition) {
+  public updateCurrentPosition(position:Position) {
 
     let latLng = new google.maps.LatLng(position.lat, position.lng);
 
@@ -59,7 +60,7 @@ export class MapController {
     this.updatePolyLine(latLng);
   }
 
-  public updateWatchedPosition(position:IPosition) {
+  public updateWatchedPosition(position:Position) {
     let newPosition = new google.maps.LatLng(position.lat, position.lng);
 
     let distance = google.maps.geometry.spherical.computeDistanceBetween(newPosition, this.currentPositionMarker.getPosition());
@@ -79,14 +80,14 @@ export class MapController {
     this.updatePolyLine(newPosition);
   }
 
-  public addStationMarker():IPosition {
+  public addStationMarker():Position {
     let marker = new google.maps.Marker({
       map: this.map,
       position: this.currentPositionMarker.getPosition()
     });
 
     this.stationMarkers.push(marker);
-    this.stationPoints.push(new Position(marker.getPosition().lat(), marker.getPosition().lng(), 0));
+    this.stationPoints.push(new Station(new Position(marker.getPosition().lat(), marker.getPosition().lng(), 0)));
 
     return new Position(marker.getPosition().lat(), marker.getPosition().lng(), 0);
   }
@@ -110,13 +111,14 @@ export class MapController {
     }
   }
 
-  public removeStationMarker(marker:any):IPosition {
-    let result:IPosition = new Position(marker.getPosition().lat(), marker.getPosition().lng(), 0);
+  public removeStationMarker(marker:any):Position {
+    let result:Position = new Position(marker.getPosition().lat(), marker.getPosition().lng(), 0);
     let index:number = this.stationMarkers.indexOf(marker);
     this.stationMarkers[index].setMap(null);
     this.stationMarkers.splice(index, 1);
 
-    let index2:number = this.stationPoints.indexOf(result);
+    let station = this.stationPoints.filter((station) => station.position === result)[0];
+    let index2:number = this.stationPoints.indexOf(station);
     this.stationPoints.splice(index2, 1);
 
     return result;
@@ -134,10 +136,10 @@ export class MapController {
 
     // return a Promise
     return new Promise(function (resolve, reject) {
-
+      let position = this.startPoint;
       let geocoder = new google.maps.Geocoder();
       let latlng = new google.maps.LatLng(position.lat, position.lng);
-      
+
       console.log("Calling google geocoding with coordinates lat:" + position.lat + " lng:" + position.lng);
 
       geocoder.geocode({'location': latlng}, (results, status) => {

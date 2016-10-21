@@ -6,14 +6,42 @@
     <ion-title>Lauf Forrest lauf....</ion-title>
   </ion-navbar>
 </ion-header>
-
 <ion-content padding>
-  <p>{{track.name}}</p>
-  <div id="#stationWrapper">
-    <div class="station" *ngFor="let track of tracks; let i=index">1</div>
+  <ion-card>
+    <ion-grid>
+      <ion-row center>
+        <ion-col width-50>
+          <div>
+            <span class="cardTitle">Time</span><br>
+            <span class="cardText">00:24:43</span>
+          </div>
+        </ion-col>
+        <ion-col width-50>
+          <div>
+            <span class="cardTitle">Heigth</span><br>
+            <span class="cardText">37m</span>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row center>
+        <ion-col width-50>
+          <div>
+            <span class="cardTitle">Distance</span><br>
+            <span class="cardText">2532m</span>
+          </div>
+        </ion-col>
+        <ion-col width-50>
+          <div>
+            <span class="cardTitle">Speed</span><br>
+            <span class="cardText">8 km/h</span>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
 
-  </div>
+  <svg [ngClass]="setClasses()" *ngFor="let station of track.stations; let i=index" xmlns="http://www.w3.org/2000/svg">
+    <text x="25" y="35" font-family="Arial" font-size="30" font-weight="bold" text-anchor="middle" fill="white">1</text>
+  </svg>
+
 </ion-content>
-
-
-<div id="circle"></div>

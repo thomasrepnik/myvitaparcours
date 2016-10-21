@@ -3,11 +3,14 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>Vitaparcours erfassen</ion-title>
+    <ion-title>Vorhandene Vitaparcours</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
+  <div *ngIf="tracks.length === 0">
+    "Keine Vitaparcours gefunden"
+  </div>
   <ion-card *ngFor="let track of tracks; let i=index" (click)="goToRunningPage(track)">
     <ion-card-header>
       {{track.name}}

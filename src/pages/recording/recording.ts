@@ -1,6 +1,6 @@
 import {Component, ViewChild, ElementRef} from '@angular/core';
 import {NavController, ToastController, AlertController} from 'ionic-angular';
-import {IPosition, TrackService} from "../../providers/track-service/track-service";
+import {TrackService, Position} from "../../providers/track-service/track-service";
 import {MapController} from "./mapcontroller";
 import {TrackUtil} from "./trackUtil";
 
@@ -27,7 +27,7 @@ export class RecordingPage {
   toggleCaption:any;
 
 
-  stations:Array<IPosition> = [];
+  stations:Array<Position> = [];
 
   vitaparcours:any;
   watch:any;
@@ -126,12 +126,12 @@ export class RecordingPage {
 
 
   addExcercisePosition() {
-    let position:IPosition = this.mapController.addStationMarker();
+    let position:Position = this.mapController.addStationMarker();
     this.stations.push(position);
   }
 
   deleteExcercise(marker) {
-    let position:IPosition = this.mapController.removeStationMarker(marker);
+    let position:Position = this.mapController.removeStationMarker(marker);
     let index:number = this.stations.indexOf(position);
     this.stations.splice(index, 1);
   }

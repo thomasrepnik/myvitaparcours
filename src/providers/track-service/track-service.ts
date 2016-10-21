@@ -1,13 +1,8 @@
 import {SQLite} from 'ionic-native';
 import {Injectable} from '@angular/core';
+import {Station} from "../../pages/running/station";
 
-export interface IPosition {
-  lat:number;
-  lng:number;
-  altitude:number;
-}
-
-export class Position implements IPosition {
+export class Position{
   lat:number;
   lng:number;
   altitude:number;
@@ -22,12 +17,12 @@ export class Position implements IPosition {
 export class Track {
   id:number;
   name:string;
-  startPoint: IPosition;
-  waypoints:Array<IPosition>;
-  stations:Array<IPosition>;
+  startPoint: Position;
+  waypoints:Array<Position>;
+  stations:Array<Station>;
   distanceInMeters: number;
 
-  constructor(name:string, startPoint:IPosition, distance: number, waypoints:Array<IPosition>, stations:Array<IPosition>, id?:number) {
+  constructor(name:string, startPoint:Position, distance: number, waypoints:Array<Position>, stations:Array<Station>, id?:number) {
     this.id = id;
     this.name = name;
     this.startPoint = startPoint;
@@ -88,9 +83,9 @@ export class TrackService {
         if (resultSet.rows.length > 0) {
           for (var i = 0; i < resultSet.rows.length; i++) {
             let item = resultSet.rows.item(i);
-            let startPoint: IPosition = JSON.parse(item.startpoint);
-            let waypoints: Array<IPosition> = JSON.parse(item.waypoints);
-            let stations: Array<IPosition> = JSON.parse(item.stations);
+            let startPoint: Position = JSON.parse(item.startpoint);
+            let waypoints: Array<Position> = JSON.parse(item.waypoints);
+            let stations: Array<Station> = JSON.parse(item.stations);
 
             tracks.push(new Track(item.name, startPoint, item.distance, waypoints, stations, item.id));
           }
@@ -100,10 +95,16 @@ export class TrackService {
     return tracks;
   }
 
+  replacer = function(key,value) {
+    if (key=="visited") {
+      return undefined;
+    }
+  };
+
   // Save a new note to the DB
   public saveTrack(track: Track) {
     let sql = 'INSERT INTO tracks (name, startpoint, distance, waypoints, stations) VALUES (?,?,?,?,?)';
-    this.db.executeSql(sql, [track.name, JSON.stringify(track.startPoint), track.distanceInMeters, JSON.stringify(track.waypoints), JSON.stringify(track.stations)]).then(() => {
+    this.db.executeSql(sql, [track.name, JSON.stringify(track.startPoint), track.distanceInMeters, JSON.stringify(track.waypoints), JSON.stringify(track.stations, this.replacer)]).then(() => {
       //evtl. ID zurückgeben?
     }, (err) => {
       console.error('Unable to execute sql: ', err);
@@ -125,4 +126,6 @@ export class TrackService {
       console.error("Error while dropping table: " + err.message);
     });
   }
+
+
 }

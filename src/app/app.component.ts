@@ -9,7 +9,9 @@ import { ListPage } from '../pages/list/list';
 import { MapsPage } from '../pages/maps/maps';
 import { RecordingPage } from '../pages/recording/recording';
 import { TracksPage} from '../pages/tracks/tracks';
+import {RunningPage} from "../pages/running/running";
 import {SettingsPage} from "../pages/settings/settings";
+
 import {TrackService} from "../providers/track-service/track-service";
 
 
@@ -36,6 +38,7 @@ export class MyApp {
       { title: 'My First List', component: ListPage },
       { title: 'My Location', component: MapsPage },
       { title: 'Parcours', component: TracksPage},
+      { title: 'Running', component: RunningPage},
       { title: 'Erfassen', component: RecordingPage },
       { title: 'Einstellungen', component: SettingsPage }
 

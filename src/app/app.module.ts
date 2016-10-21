@@ -11,7 +11,7 @@ import { Storage } from '@ionic/storage';
 import { Data } from '../providers/data';
 import {TrackService} from "../providers/track-service/track-service";
 import {SettingsPage} from "../pages/settings/settings";
-import {RunningPage} from "../../.tmp/pages/running/running";
+import {RunningPage} from "../pages/running/running";
 
 @NgModule({
   declarations: [

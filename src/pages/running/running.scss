@@ -1,25 +1,39 @@
 
-$stationCircle-size: 50px;
 
-.station {
-  width: $stationCircle-size;
-  height: $stationCircle-size;
-  -webkit-border-radius: $stationCircle-size / 2;
-  -moz-border-radius: $stationCircle-size / 2;
-  border-radius: $stationCircle-size / 2;
-  background: red;
-  float: left;
-  margin-right: 10px;
-  margin-bottom: 10px;
-
-  /* Center Text in Div */
-  text-align: center;
-  line-height: $stationCircle-size;
-  vertical-align: middle;
+.cardTitle{
+  font-size: 17px;
+  font-weight: bold;
 }
 
-#stationWrapper {
-  width: 100%;
-  border: 1px solid black;
-  overflow: hidden; /* add this to contain floated children */
+.cardText{
+  font-size: 17px;
 }
+
+.visited {
+  animation: fill .4s ease-in-out .4s forwards, scale .4s ease-in-out .9s both;
+}
+
+.unvisited {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: inline;
+  stroke-width: 2;
+  stroke: #fff;
+  stroke-miterlimit: 10;
+  margin-left: 10px;
+  background: $color--green;
+  box-shadow: inset 0px 0px 0px $color--green;
+
+}
+
+@keyframes fill {
+  50% {
+    transform: scale3d(1.5, 1.5, 1);
+    box-shadow: inset 0px 0px 0px $color--green;
+  }
+  100% {
+    box-shadow: inset 0px 0px 0px 30px #FF0000;
+  }
+}
+

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import {Station} from "../running/station";
+import {Position} from "../../providers/track-service/track-service";
 
 declare var google;
 
@@ -11,6 +13,17 @@ export class HelloIonicPage {
 
   }
 
+
+  public doit2(){
+
+    let station = new Station(new Position(1.1, 2.2, 0));
+
+    let str = JSON.stringify(station);
+
+    let station2 = <Station>JSON.parse(str);
+
+    console.log(station2.position.lat + " / " + station2.position.lng);
+  }
 
   public doit() {
     var geocoder = new google.maps.Geocoder;

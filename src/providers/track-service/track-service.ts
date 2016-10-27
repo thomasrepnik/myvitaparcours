@@ -1,8 +1,9 @@
 import {SQLite} from 'ionic-native';
 import {Injectable} from '@angular/core';
 import {Station} from "../../pages/running/station";
+import {Observable} from 'rxjs/Observable';
 
-export class Position{
+export class Position {
   lat:number;
   lng:number;
   altitude:number;
@@ -17,12 +18,12 @@ export class Position{
 export class Track {
   id:number;
   name:string;
-  startPoint: Position;
+  startPoint:Position;
   waypoints:Array<Position>;
   stations:Array<Station>;
-  distanceInMeters: number;
+  distanceInMeters:number;
 
-  constructor(name:string, startPoint:Position, distance: number, waypoints:Array<Position>, stations:Array<Station>, id?:number) {
+  constructor(name:string, startPoint:Position, distance:number, waypoints:Array<Position>, stations:Array<Station>, id?:number) {
     this.id = id;
     this.name = name;
     this.startPoint = startPoint;
@@ -43,7 +44,7 @@ export class TrackService {
 
   }
 
-  public init(){
+  public init() {
     console.log("init called");
 
     this.openDatabase();
@@ -64,8 +65,8 @@ export class TrackService {
     });
   }
 
-  private setUpTables(){
-    this.db.executeSql('CREATE TABLE IF NOT EXISTS tracks (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(50), startpoint VARCHAR(50), distance INTEGER, waypoints TEXT, stations TEXT)', {}).then(() => {
+  private setUpTables() {
+    this.db.executeSql('CREATE TABLE IF NOT EXISTS tracks (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(50), start_lat NUMERIC, start_lng NUMERIC, distance INTEGER, waypoints TEXT, stations TEXT)', {}).then(() => {
       console.log("Tables successfully created");
     }, (err) => {
       console.error('Unable to execute sql: ', err);
@@ -83,9 +84,13 @@ export class TrackService {
         if (resultSet.rows.length > 0) {
           for (var i = 0; i < resultSet.rows.length; i++) {
             let item = resultSet.rows.item(i);
-            let startPoint: Position = JSON.parse(item.startpoint);
-            let waypoints: Array<Position> = JSON.parse(item.waypoints);
-            let stations: Array<Station> = JSON.parse(item.stations);
+            let startPoint:Position = new Position(item.start_lat, item.start_lng, 0);
+            let waypoints:Array<Position> = JSON.parse(item.waypoints);
+            let stations:Array<Station> = JSON.parse(item.stations);
+
+            if (stations === null) {
+              stations = new Array<Station>();
+            }
 
             tracks.push(new Track(item.name, startPoint, item.distance, waypoints, stations, item.id));
           }
@@ -95,20 +100,57 @@ export class TrackService {
     return tracks;
   }
 
-  replacer = function(key,value) {
-    if (key=="visited") {
+  replacer = function (key, value) {
+    if (key === "visited") {
       return undefined;
+    } else {
+      return value;
     }
   };
 
   // Save a new note to the DB
-  public saveTrack(track: Track) {
-    let sql = 'INSERT INTO tracks (name, startpoint, distance, waypoints, stations) VALUES (?,?,?,?,?)';
-    this.db.executeSql(sql, [track.name, JSON.stringify(track.startPoint), track.distanceInMeters, JSON.stringify(track.waypoints), JSON.stringify(track.stations, this.replacer)]).then(() => {
+  public saveTrack(track:Track) {
+    let sql = 'INSERT INTO tracks (name, start_lat, start_lng, distance, waypoints, stations) VALUES (?,?,?,?,?,?)';
+    this.db.executeSql(sql, [track.name, track.startPoint.lat, track.startPoint.lng, track.distanceInMeters, JSON.stringify(track.waypoints), JSON.stringify(track.stations, this.replacer)]).then(() => {
       //evtl. ID zurückgeben?
     }, (err) => {
       console.error('Unable to execute sql: ', err);
     });
+  }
+
+  public getNearestTrack(position:Position):Observable<Track> {
+    console.log("getNearestTrack called: lat: " + position.lat + " lng: " + position.lng);
+
+    return new Observable<Track>(observer => {
+      let sql = 'SELECT * FROM tracks ORDER BY ((start_lat-?)*(start_lat-?)) + ((start_lng - ?)*(start_lng - ?)) ASC';
+      this.db.executeSql(sql, [position.lat, position.lat, position.lng, position.lng]).then(
+        resultSet => {
+
+          if (resultSet.rows.length > 0) {
+            let item = resultSet.rows.item(0);
+
+            let startPoint:Position = new Position(item.start_lat, item.start_lng, 0);
+            let waypoints:Array<Position> = JSON.parse(item.waypoints);
+            let stations:Array<Station> = JSON.parse(item.stations);
+            if (stations === null) {
+              stations = new Array<Station>();
+            }
+
+            console.log("Name: " + item.name);
+            console.log("Distance: " + item.distance);
+
+            observer.next(new Track(item.name, startPoint, item.distance, waypoints, stations, item.id));
+          }else{
+            observer.error("No nearest vitaparcours found");
+          }
+        }, (err) => {
+          console.error('Unable to execute sql: ', err);
+          observer.error("Error while executing sql. Please check the logs!");
+        });
+
+
+    });
+
   }
 
   // Remoe a not with a given ID
@@ -117,9 +159,9 @@ export class TrackService {
     this.db.executeSql(sql, {});
   }
 
-  public clearDatabase(){
+  public clearDatabase() {
     let sql = "DROP TABLE tracks";
-    this.db.executeSql(sql, {}).then( () => {
+    this.db.executeSql(sql, {}).then(() => {
       console.log("Table successfully dropped");
       this.setUpTables();
     }, (err) => {

@@ -15,6 +15,7 @@ export class MapController {
   wayPoints:Array<Position> = [];
   stationPoints:Array<Station> = [];
   polyline:any;
+  recordingEnabled: boolean;
 
   locatorImage:any = {
     url: 'assets/images/locator.png',
@@ -45,23 +46,46 @@ export class MapController {
     return this.stationMarkers;
   }
 
-  public updateCurrentPosition(position:Position) {
-
-    let latLng = new google.maps.LatLng(position.lat, position.lng);
-
-    this.currentPositionMarker = new google.maps.Marker({
-      map: this.map,
-      position: latLng,
-      icon: this.locatorImage
-    });
-
-    this.map.setCenter(latLng);
-
-    this.updatePolyLine(latLng);
+  public startRecording(){
+   this.recordingEnabled = true;
   }
 
-  public updateWatchedPosition(position:Position) {
+  public stopRecording(){
+    this.recordingEnabled = false;
+  }
+
+  public updatePosition(position:Position) {
     let newPosition = new google.maps.LatLng(position.lat, position.lng);
+
+    if (isUndefined(this.currentPositionMarker)){
+      this.currentPositionMarker = new google.maps.Marker({
+        map: this.map,
+        position: newPosition,
+        icon: this.locatorImage
+      });
+    }
+
+    if (this.recordingEnabled){
+      this.recordNewPosition(newPosition);
+    }else{
+      this.currentPositionMarker.setPosition(newPosition);
+      this.map.setCenter(newPosition);
+
+    }
+
+
+
+  }
+
+  private recordNewPosition(newPosition){
+
+    if (isUndefined(this.startPoint)) {
+      this.startPoint = new Position(newPosition.lat(), newPosition.lng(), 0);
+      console.log("Set Startpoint to " + newPosition.lat() + "  " + newPosition.lng());
+
+      //Erster Eintrag im Pfad (Polyline) erstellen für aktuelle startposition
+      this.updatePolyLine(newPosition);
+    }
 
     let distance = google.maps.geometry.spherical.computeDistanceBetween(newPosition, this.currentPositionMarker.getPosition());
     if (distance <= 10) {
@@ -69,15 +93,14 @@ export class MapController {
       return;
     }
 
-    if (isUndefined(this.startPoint)) {
-      this.startPoint = position;
-    }
-
-    console.log("New position: " + position.lat + "  " + position.lng);
+    console.log("New position: " + newPosition.lat() + "  " + newPosition.lng());
 
     this.currentPositionMarker.setPosition(newPosition);
 
     this.updatePolyLine(newPosition);
+
+    this.map.setCenter(newPosition);
+
   }
 
   public addStationMarker():Position {
@@ -106,9 +129,9 @@ export class MapController {
       });
 
       this.polyline.setMap(this.map);
-    } else {
-      this.polyline.getPath().push(latlng);
     }
+
+    this.polyline.getPath().push(latlng);
   }
 
   public removeStationMarker(marker:any):Position {
@@ -135,7 +158,7 @@ export class MapController {
 
 
     // return a Promise
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       let position = this.startPoint;
       let geocoder = new google.maps.Geocoder();
       let latlng = new google.maps.LatLng(position.lat, position.lng);

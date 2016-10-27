@@ -16,7 +16,8 @@
       {{track.name}}
     </ion-card-header>
     <ion-card-content>
-      <b>Länge: </b>{{track.distanceInMeters | number:'1.0-0'}}m
+      <b>Länge: </b>{{track.distanceInMeters | number:'1.0-0'}}m<br/>
+      <b>Anzahl Stationen: {{track.stations.length}}</b>
     </ion-card-content>
   </ion-card>
 </ion-content>

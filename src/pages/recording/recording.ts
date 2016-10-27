@@ -117,11 +117,7 @@ export class RecordingPage {
   }
 
   startRecording() {
-    this.watch = navigator.geolocation.watchPosition((position) => {
-        this.mapController.updateWatchedPosition(TrackUtil.convertToPosition(position));
-    }, (positionError) => {
-      console.log('Error ' + positionError.code + ': ' + positionError.message);
-    }, this.geolocationOptions);
+    this.mapController.startRecording();
   }
 
 
@@ -138,6 +134,7 @@ export class RecordingPage {
 
   stopRecording() {
     navigator.geolocation.clearWatch(this.watch);
+    this.mapController.stopRecording();
   }
 
 
@@ -146,11 +143,12 @@ export class RecordingPage {
     this.stationMarkers = this.mapController.getStationMarkers();
 
 
-    navigator.geolocation.getCurrentPosition((geoPosition) => {
-      this.mapController.updateCurrentPosition(TrackUtil.convertToPosition(geoPosition));
-    }, (err) => {
-      console.log(err);
+    this.watch = navigator.geolocation.watchPosition((position) => {
+      this.mapController.updatePosition(TrackUtil.convertToPosition(position));
+    }, (positionError) => {
+      console.log('Error ' + positionError.code + ': ' + positionError.message);
     }, this.geolocationOptions);
+
   }
 
 }

@@ -21,7 +21,7 @@ export class TrackRunner {
   }
 
   public processPosition(position: Position, speed: number, altitude: number){
-    this.currentSpeed = speed * 3.6; //Umrechnung in km/h
+    this.currentSpeed = Math.floor(speed * 3.6); //Umrechnung in km/h
     //this.totalAltitude = this.totalAltitude + Math.abs(isUndefined(this.lastAltitude) ? 0 : this.lastAltitude - Math.floor(altitude));
     //this.lastAltitude = Math.floor(altitude);
     console.log("TrackRunner received new position: " + position.lat + " " + position.lng);

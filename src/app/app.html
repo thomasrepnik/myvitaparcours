@@ -1,19 +1,5 @@
-<ion-menu [content]="content">
-
-  <ion-header>
-    <ion-toolbar>
-      <ion-title>Pages</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <ion-content>
-    <ion-list>
-      <button ion-item *ngFor="let p of pages" (click)="openPage(p)">
-        {{p.title}}
-      </button>
-    </ion-list>
-  </ion-content>
-
-</ion-menu>
-
-<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>
+<ion-tabs>
+  <ion-tab tabIcon="walk" tabTitle="Run" [root]="runTab"></ion-tab>
+  <ion-tab tabIcon="map" tabTitle="Parcours" [root]="parcoursTab"></ion-tab>
+  <ion-tab tabIcon="settings" tabTitle="Settings" [root]="settingsTab"></ion-tab>
+</ion-tabs>`

@@ -25,6 +25,9 @@ export class TracksPage {
   }
 
   goToRunningPage(track: Track) {
+
+    console.log(JSON.stringify(this.tracks));
+
     //push another page onto the history stack
     //causing the nav controller to animate the new page in
     this.navCtrl.push(RunningPage, { track: track });

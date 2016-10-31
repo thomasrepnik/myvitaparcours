@@ -4,6 +4,7 @@ import {TrackService, Position} from "../../providers/track-service/track-servic
 import {MapController} from "./mapcontroller";
 import {TrackUtil} from "./trackUtil";
 
+
 declare var google;
 
 @Component({
@@ -33,6 +34,8 @@ export class RecordingPage {
   watch:any;
 
 
+
+
   constructor(public navCtrl:NavController, public trackService:TrackService, public alertCtrl:AlertController, public toastCtrl: ToastController) {
 
 
@@ -50,6 +53,7 @@ export class RecordingPage {
 
      });*/
   }
+
 
   showSavePrompt(){
     this.mapController.getPostalLocation()
@@ -148,7 +152,6 @@ export class RecordingPage {
     }, (positionError) => {
       console.log('Error ' + positionError.code + ': ' + positionError.message);
     }, this.geolocationOptions);
-
   }
 
 }

@@ -24,15 +24,15 @@ export class TrackRunner {
     this.currentSpeed = Math.floor(speed * 3.6); //Umrechnung in km/h
     //this.totalAltitude = this.totalAltitude + Math.abs(isUndefined(this.lastAltitude) ? 0 : this.lastAltitude - Math.floor(altitude));
     //this.lastAltitude = Math.floor(altitude);
-    console.log("TrackRunner received new position: " + position.lat + " " + position.lng);
+    //console.log("TrackRunner received new position: " + position.lat + " " + position.lng);
 
     this.calculateAltitude(Math.floor(altitude));
     this.checkStationsForVisits(position);
 
-    console.log("Current speed3: " + this.currentSpeed);
-    console.log("Last altitude3: " + this.lastAltitude);
-    console.log("Last valid altitude3: " + this.lastValidAltitude);
-    console.log("Total altitude3: " + this.totalAltitude);
+    //console.log("Current speed3: " + this.currentSpeed);
+    //console.log("Last altitude3: " + this.lastAltitude);
+    //console.log("Last valid altitude3: " + this.lastValidAltitude);
+    //console.log("Total altitude3: " + this.totalAltitude);
   }
 
   private calculateAltitude(altitude: number){

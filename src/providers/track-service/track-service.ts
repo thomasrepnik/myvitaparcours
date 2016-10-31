@@ -1,7 +1,8 @@
 import {SQLite} from 'ionic-native';
 import {Injectable} from '@angular/core';
 import {Station} from "../../pages/running/station";
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs/Rx';
+import 'rxjs/Rx';
 
 export class Position {
   lat:number;
@@ -44,34 +45,71 @@ export class TrackService {
 
   }
 
-  public init() {
+  public init(): Observable<string> {
     console.log("init called");
 
-    this.openDatabase();
+    return this.openDatabase();
   }
 
-  private openDatabase() {
-    console.log("createAndOpenDatabase called");
+  private setupOptionTable():Observable<string> {
+    return new Observable<string>(observer => {
+      this.db.executeSql('CREATE TABLE IF NOT EXISTS options (key VARCHAR(50), value VARCHAR(50), UNIQUE(key) ON CONFLICT ABORT)', {}).then(() => {
+        console.log("Options Table successfully created");
+        observer.next("OK");
+        observer.complete();
+      }, (err) => {
+        console.error('Unable to execute sql: ', err);
+        observer.error(err);
+      });
 
-    this.db = new SQLite();
-    this.db.openDatabase({
-      name: 'myparcours.db',
-      location: 'default' // the location field is required
-    }).then(() => {
-      console.log("Database opened successfully");
-      this.setUpTables();
-    }, (err) => {
-      console.error('Unable to open database: ', err);
     });
+  }
+
+  private openDatabase():Observable<string> {
+    return new Observable<string>(observer => {
+
+      console.log("createAndOpenDatabase called");
+
+      this.db = new SQLite();
+      this.db.openDatabase({
+        name: 'myparcours.db',
+        location: 'default' // the location field is required
+      }).then(() => {
+        console.log("Database opened successfully");
+        this.setUpTables();
+        observer.next("OK");
+        observer.complete();
+      }, (err) => {
+        console.error('Unable to open database: ', err);
+        observer.error(err);
+      });
+
+    });
+
+
   }
 
   private setUpTables() {
-    this.db.executeSql('CREATE TABLE IF NOT EXISTS tracks (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(50), start_lat NUMERIC, start_lng NUMERIC, distance INTEGER, waypoints TEXT, stations TEXT)', {}).then(() => {
-      console.log("Tables successfully created");
-    }, (err) => {
-      console.error('Unable to execute sql: ', err);
+    let observable1 = this.setupTrackTables();
+    let observable2 = this.setupOptionTable();
+
+    Observable.forkJoin(observable1, observable2).subscribe(() => console.log('All Tables created successfully'));
+  }
+
+  private setupTrackTables():Observable<string> {
+    return new Observable<string>(observer => {
+
+      this.db.executeSql('CREATE TABLE IF NOT EXISTS tracks (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(50), start_lat NUMERIC, start_lng NUMERIC, distance INTEGER, waypoints TEXT, stations TEXT, builtin INTEGER DEFAULT FALSE)', {}).then(() => {
+        console.log("Track Table successfully created");
+        observer.next("OK");
+        observer.complete();
+      }, (err) => {
+        console.error('Unable to execute sql: ', err);
+        observer.error(err);
+      });
     });
   }
+
 
   // Get all notes of our DB
   public getTracks():Array<Track> {
@@ -109,14 +147,71 @@ export class TrackService {
   };
 
   // Save a new note to the DB
-  public saveTrack(track:Track) {
-    let sql = 'INSERT INTO tracks (name, start_lat, start_lng, distance, waypoints, stations) VALUES (?,?,?,?,?,?)';
-    this.db.executeSql(sql, [track.name, track.startPoint.lat, track.startPoint.lng, track.distanceInMeters, JSON.stringify(track.waypoints), JSON.stringify(track.stations, this.replacer)]).then(() => {
+  public saveTrack(track:Track, builtin = false) {
+    return new Observable<string>(observer => {
+      let sql = 'INSERT INTO tracks (name, start_lat, start_lng, distance, waypoints, stations, builtin) VALUES (?,?,?,?,?,?,?)';
+      this.db.executeSql(sql, [track.name, track.startPoint.lat, track.startPoint.lng, track.distanceInMeters, JSON.stringify(track.waypoints), JSON.stringify(track.stations, this.replacer), builtin]).then(() => {
+        observer.next("OK");
+        observer.complete();
+      }, (err) => {
+        console.error('Unable to execute sql: ', err);
+        observer.error(err);
+      });
+    });
+  }
+
+  public updateAllTracks(tracks:Array<Track>): Array<Observable<string>> {
+    let sql = 'DELETE FROM tracks WHERE builtin = 1';
+    this.db.executeSql(sql, []).then(() => {
       //evtl. ID zurückgeben?
     }, (err) => {
       console.error('Unable to execute sql: ', err);
     });
+
+    let observableBatch:Array<Observable<string>> = [];
+
+    tracks.forEach((track) => {
+      observableBatch.push(this.saveTrack(track));
+    });
+
+    return observableBatch;
   }
+
+
+  public getOption(key:string):Observable<string> {
+    return new Observable<string>(observer => {
+      let sql = 'SELECT value FROM options where key = ?';
+      this.db.executeSql(sql, [key]).then(
+        resultSet => {
+          if (resultSet.rows.length === 1) {
+            observer.next(resultSet.rows.item(0).value);
+          } else {
+            observer.next(null);
+          }
+
+          observer.complete();
+        }, (err) => {
+          console.error('Unable to execute sql: ', err);
+          observer.error("Error while executing sql. Please check the logs!");
+        });
+    });
+  }
+
+  public setOption(key:string, value:string): Observable<string> {
+    return new Observable<string>(observer => {
+      let sql = 'INSERT INTO options (key, value) VALUES (?,?)';
+      this.db.executeSql(sql, [key, value]).then(() => {
+        console.log("Option '" + key + "' with value '" + value + "' set!")
+        observer.next("OK");
+        observer.complete();
+      }, (err) => {
+        console.error('Unable to execute sql: ', err);
+        observer.error(err);
+      });
+    });
+
+  }
+
 
   public getNearestTrack(position:Position):Observable<Track> {
     console.log("getNearestTrack called: lat: " + position.lat + " lng: " + position.lng);
@@ -140,7 +235,7 @@ export class TrackService {
             console.log("Distance: " + item.distance);
 
             observer.next(new Track(item.name, startPoint, item.distance, waypoints, stations, item.id));
-          }else{
+          } else {
             observer.error("No nearest vitaparcours found");
           }
         }, (err) => {
@@ -160,13 +255,24 @@ export class TrackService {
   }
 
   public clearDatabase() {
-    let sql = "DROP TABLE tracks";
-    this.db.executeSql(sql, {}).then(() => {
-      console.log("Table successfully dropped");
-      this.setUpTables();
+
+    let p1  = this.db.executeSql("DROP TABLE tracks", {}).then(() => {
+      console.log("Track table successfully dropped");
     }, (err) => {
       console.error("Error while dropping table: " + err.message);
     });
+
+    let p2  = this.db.executeSql("DROP TABLE options", {}).then(() => {
+      console.log("Option table successfully dropped");
+    }, (err) => {
+      console.error("Error while dropping table: " + err.message);
+    });
+
+    Promise.all([p1, p2]).then(values => {
+      console.log("Database cleared successfully");
+      this.setUpTables();
+    });
+
   }
 
 

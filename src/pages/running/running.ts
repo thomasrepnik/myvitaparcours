@@ -36,6 +36,8 @@ export class RunningPage {
     //this.track = params.get("track");
 
     this.watch = navigator.geolocation.watchPosition((position) => {
+      console.log("Current accuracy: " + position.coords.accuracy);
+      console.log("Current altitude accuracy: " + position.coords.altitudeAccuracy);
       this.processPosition(TrackUtil.convertToPosition(position), position.coords.speed, position.coords.altitude);
     }, (positionError) => {
       console.log('Error ' + positionError.code + ': ' + positionError.message);

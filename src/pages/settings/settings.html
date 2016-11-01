@@ -1,13 +1,12 @@
 <ion-content padding>
   <ion-list>
-    <ion-list-header>
-      Generell
-    </ion-list-header>
     <ion-item>
-      <ion-icon name="leaf" item-left></ion-icon>
-      Herbology
-      <ion-toggle checked="false"></ion-toggle>
+      <ion-label item-left>GPS Accuracy</ion-label>
+      <ion-range min="0" max="50" [(ngModel)]="gpsAccuracy" (ionChange)="onGpsAccuracyUpdated()" pin="true" debounce="500">
+      </ion-range>
+      <ion-badge item-right>{{gpsAccuracy}}</ion-badge>
     </ion-item>
   </ion-list>
+
   <button ion-button color="danger" block (click)="clearDatabase()">Clear Database</button>
 </ion-content>

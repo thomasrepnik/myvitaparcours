@@ -1,13 +1,9 @@
-.scroll {
-  height: 40%;
-}
-
 #map {
   width: 100%;
-  height: 40%;
+  height: 100%;
 }
 
-#content {
-  width: 80%;
-  align-items: center;
+.fab{
+  margin-top: 20px;
+  z-index: 100;
 }

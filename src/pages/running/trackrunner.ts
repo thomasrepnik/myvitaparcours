@@ -28,7 +28,6 @@ export class TrackRunner {
 
     this.calculateAltitude(Math.floor(altitude));
     this.checkStationsForVisits(position);
-
     //console.log("Current speed3: " + this.currentSpeed);
     //console.log("Last altitude3: " + this.lastAltitude);
     //console.log("Last valid altitude3: " + this.lastValidAltitude);

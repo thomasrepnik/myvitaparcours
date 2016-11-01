@@ -23,17 +23,9 @@ export class RecordingPage {
     maximumAge: 5000
   };
 
-  stationMarkers:Array<any> = [];
-
-  toggleCaption:any;
-
-
-  stations:Array<Position> = [];
-
-  vitaparcours:any;
+  toggleIcon:string;
   watch:any;
-
-
+  markerButtonDisabled = true;
 
 
   constructor(public navCtrl:NavController, public trackService:TrackService, public alertCtrl:AlertController, public toastCtrl: ToastController) {
@@ -43,15 +35,7 @@ export class RecordingPage {
 
   ngAfterViewInit() {
     this.loadMap();
-    this.toggleCaption = "Start";
-
-    /*this.dataService.getData().then((todos) => {
-
-     if (todos) {
-     console.log("Received data from SQL Storage: " + JSON.parse(todos));
-     }
-
-     });*/
+    this.toggleIcon = "arrow-dropright-circle";
   }
 
 
@@ -98,25 +82,36 @@ export class RecordingPage {
 
   saveTrack(trackName:string) {
     console.log("Saving track: " + trackName);
-    this.trackService.saveTrack(this.mapController.createTrack(trackName));
+    this.trackService.saveTrack(this.mapController.createTrack(trackName)).subscribe((state) => {
 
-    let toast = this.toastCtrl.create({
-      message: "Track saved under '" + trackName + "'",
-      duration: 3000
+      this.mapController.reset();
+
+      let toast = this.toastCtrl.create({
+        message: "Track saved under '" + trackName + "'",
+        position: 'middle',
+        showCloseButton: true,
+        closeButtonText: 'Ok'
+      });
+
+      toast.present();
     });
-
-    toast.present();
   }
 
 
 
   toggleRecording() {
-    if (this.toggleCaption === "Start") {
+    if (this.toggleIcon === "arrow-dropright-circle") {
       this.startRecording();
-      this.toggleCaption = "Stop";
+      this.toggleIcon = "checkmark-circle";
+      this.markerButtonDisabled = false;
     } else {
       this.stopRecording();
-      this.toggleCaption = "Start";
+      this.toggleIcon = "arrow-dropright-circle";
+      this.markerButtonDisabled = true;
+
+      if (this.mapController.getStationMarkers().length > 0){
+        this.showSavePrompt();
+      }
     }
   }
 
@@ -126,14 +121,7 @@ export class RecordingPage {
 
 
   addExcercisePosition() {
-    let position:Position = this.mapController.addStationMarker();
-    this.stations.push(position);
-  }
-
-  deleteExcercise(marker) {
-    let position:Position = this.mapController.removeStationMarker(marker);
-    let index:number = this.stations.indexOf(position);
-    this.stations.splice(index, 1);
+    this.mapController.addStationMarker();
   }
 
   stopRecording() {
@@ -144,8 +132,6 @@ export class RecordingPage {
 
   loadMap() {
     this.mapController = new MapController(this.mapElement.nativeElement);
-    this.stationMarkers = this.mapController.getStationMarkers();
-
 
     this.watch = navigator.geolocation.watchPosition((position) => {
       this.mapController.updatePosition(TrackUtil.convertToPosition(position));

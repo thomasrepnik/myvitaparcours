@@ -17,6 +17,11 @@ export class TracksPage {
 
 
   ngAfterViewInit() {
+    this.update();
+  }
+
+  public update(){
+    console.log("Updating tracks!");
     this.loadTracks();
   }
 

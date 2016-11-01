@@ -2,7 +2,7 @@ import {Position, Track} from "../../providers/track-service/track-service";
 import {isUndefined} from "ionic-angular/util/util";
 import {
   GoogleMap, GoogleMapsEvent, GoogleMapsLatLng, CameraPosition, GoogleMapsMarkerOptions,
-  GoogleMapsMarker, GoogleMapsPolyline
+  GoogleMapsMarker, GoogleMapsPolyline, GoogleMapsAnimation
 } from 'ionic-native';
 
 import 'rxjs/Rx';
@@ -15,14 +15,14 @@ declare var GeolocationMarker:any; // Magic
 
 
 export class MapController {
-  stationMarkers:any = [];
-  map: GoogleMap;
+  stationMarkers:Array<GoogleMapsMarker> = [];
+  map:GoogleMap;
   startPoint:Position;
   wayPoints:Array<GoogleMapsLatLng> = [];
   stationPoints:Array<Station> = [];
   polyline:GoogleMapsPolyline;
   lastPosition:GoogleMapsLatLng;
-  recordingEnabled: boolean;
+  recordingEnabled:boolean;
 
   constructor(mapElement:any) {
 
@@ -57,30 +57,29 @@ export class MapController {
 
   }
 
-  public getStationMarkers():Array<any> {
+  public getStationMarkers():Array<GoogleMapsMarker> {
     return this.stationMarkers;
   }
 
-  public startRecording(){
-   this.recordingEnabled = true;
+  public startRecording() {
+    this.recordingEnabled = true;
   }
 
-  public stopRecording(){
+  public stopRecording() {
     this.recordingEnabled = false;
   }
 
   public updatePosition(position:Position) {
+    let newPosition:GoogleMapsLatLng = new GoogleMapsLatLng(position.lat, position.lng);
 
-    let newPosition: GoogleMapsLatLng = new GoogleMapsLatLng(position.lat, position.lng);
-
-    if (this.recordingEnabled){
+    if (this.recordingEnabled) {
       this.recordNewPosition(newPosition);
-    }else{
+    } else {
       this.map.setCenter(newPosition);
     }
   }
 
-  private recordNewPosition(newPosition: GoogleMapsLatLng){
+  private recordNewPosition(newPosition:GoogleMapsLatLng) {
 
     if (isUndefined(this.startPoint)) {
       this.startPoint = new Position(newPosition.lat, newPosition.lng, 0);
@@ -90,7 +89,7 @@ export class MapController {
       this.updatePolyLine(newPosition);
     }
 
-    if (isUndefined(this.lastPosition)){
+    if (isUndefined(this.lastPosition)) {
       //Initial die letzte Position auf die aktuelle Position setzen (Distanz = 0m)
       this.lastPosition = new GoogleMapsLatLng(newPosition.lat, newPosition.lng);
     }
@@ -99,7 +98,7 @@ export class MapController {
     console.log("LastPosition: " + this.lastPosition.lat + " / " + this.lastPosition.lng);
     console.log("NewPosition: " + newPosition.lat + " / " + newPosition.lng);
 
-    let distance = google.maps.geometry.spherical.computeDistanceBetween(TrackUtil.convertToWebApiLatLng(this.lastPosition) , TrackUtil.convertToWebApiLatLng(newPosition));
+    let distance = google.maps.geometry.spherical.computeDistanceBetween(TrackUtil.convertToWebApiLatLng(this.lastPosition), TrackUtil.convertToWebApiLatLng(newPosition));
     if (distance <= 10) {
       console.log("Ignoring new Position --> distance was only " + distance + " meters");
       return;
@@ -110,25 +109,63 @@ export class MapController {
 
     this.updatePolyLine(newPosition);
     this.map.setCenter(newPosition);
-    this.lastPosition =  new GoogleMapsLatLng(newPosition.lat, newPosition.lng);
+    this.lastPosition = new GoogleMapsLatLng(newPosition.lat, newPosition.lng);
   }
 
-  public addStationMarker():Position {
-    let marker = new google.maps.Marker({
-      map: this.map,
-      position: this.lastPosition
+  public reset(){
+    this.getStationMarkers().forEach((marker) => marker.remove());
+    this.stationMarkers = [];
+    this.stationPoints = [];
+    this.wayPoints = [];
+    this.lastPosition = undefined;
+    this.startPoint = undefined;
+    this.polyline.remove();
+  }
+
+  public addStationMarker() {
+
+
+    this.map.addMarker({
+      position: this.lastPosition,
+      animation: GoogleMapsAnimation.DROP,
+      title: 'Click here to remove station!'
+    }).then((marker: GoogleMapsMarker) => {
+
+      this.stationMarkers.push(marker);
+
+      marker.getPosition().then((position) => {
+        this.stationPoints.push(new Station(new Position(position.lat, position.lng, 0)));
+      });
+
+      marker.addEventListener(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
+        marker.showInfoWindow();
+      });
+
+      marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
+
+        let index:number = this.stationMarkers.indexOf(marker);
+        this.stationMarkers.splice(index, 1);
+
+        marker.getPosition().then((position) => {
+          let result:Position = new Position(position.lat, position.lng, 0);
+          let station = this.stationPoints.filter((station) => station.position === result)[0];
+          let index: number = this.stationPoints.indexOf(station);
+          this.stationPoints.splice(index, 1);
+
+          marker.remove();
+        });
+
+      });
+
+
     });
 
-    this.stationMarkers.push(marker);
-    this.stationPoints.push(new Station(new Position(marker.getPosition().lat(), marker.getPosition().lng(), 0)));
-
-    return new Position(marker.getPosition().lat(), marker.getPosition().lng(), 0);
   }
 
-  private updatePolyLine(latlng: GoogleMapsLatLng) {
+  private updatePolyLine(latlng:GoogleMapsLatLng) {
     this.wayPoints.push(latlng);
 
-    if (isUndefined(this.polyline)){
+    if (isUndefined(this.polyline)) {
       this.map.addPolyline({
         points: this.wayPoints,
         visible: true,
@@ -136,38 +173,23 @@ export class MapController {
         width: 3
       }).then((polyline) => {
         this.polyline = polyline;
-        console.log('Polyline initialized!')
       }).catch((value) => {
         console.log("error while initializing polyline: " + value);
       })
-    }else{
+    } else {
       this.polyline.setPoints(this.wayPoints);
     }
 
   }
 
-  public removeStationMarker(marker:any):Position {
-    let result:Position = new Position(marker.getPosition().lat(), marker.getPosition().lng(), 0);
-    let index:number = this.stationMarkers.indexOf(marker);
-    this.stationMarkers[index].setMap(null);
-    this.stationMarkers.splice(index, 1);
-
-    let station = this.stationPoints.filter((station) => station.position === result)[0];
-    let index2:number = this.stationPoints.indexOf(station);
-    this.stationPoints.splice(index2, 1);
-
-    return result;
-  }
 
   public createTrack(trackName:string):Track {
-    let distance:number = google.maps.geometry.spherical.computeLength(this.polyline.getPoints());
-    return new Track(trackName, this.startPoint, Math.floor(distance), null, this.stationPoints); //TODO!!! null
+    let distance:number = google.maps.geometry.spherical.computeLength(TrackUtil.convertToWebApiLatLngArray(this.polyline.getPoints()));
+    return new Track(trackName, this.startPoint, Math.floor(distance), TrackUtil.convertToPositionArray(this.wayPoints), this.stationPoints);
   }
 
 
   public getPostalLocation():Promise<string> {
-
-
 
     // return a Promise
     return new Promise((resolve, reject) => {

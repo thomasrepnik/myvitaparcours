@@ -111,6 +111,10 @@ export class MyApp {
     this.recordingTab = RecordingPage;
   }
 
+  updateTracks(){
+    console.log("Updating tracks");
+  }
+
   showConfirmationDialog(hash: string) {
 
     this.confirmationDialog = this.alertCtrl.create({

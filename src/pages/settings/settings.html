@@ -2,7 +2,7 @@
   <ion-list>
     <ion-item>
       <ion-label item-left>GPS Accuracy</ion-label>
-      <ion-range min="0" max="50" [(ngModel)]="gpsAccuracy" (ionChange)="onGpsAccuracyUpdated()" pin="true" debounce="500">
+      <ion-range min="0" max="50" [(ngModel)]="gpsAccuracy" (ionChange)="onGpsAccuracyUpdated()" pin="true" debounce="400">
       </ion-range>
       <ion-badge item-right>{{gpsAccuracy}}</ion-badge>
     </ion-item>

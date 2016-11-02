@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {TrackService} from "../../providers/track-service/track-service";
+import {Tabs, NavController} from "ionic-angular/index";
 
 
 @Component({
@@ -9,7 +10,7 @@ export class SettingsPage {
 
   gpsAccuracy: number;
 
-  constructor(public trackService:TrackService) {
+  constructor(public trackService:TrackService, public navCtrl:NavController) {
 
   }
 
@@ -20,4 +21,6 @@ export class SettingsPage {
   public clearDatabase(){
     this.trackService.clearDatabase();
   }
+
+
 }

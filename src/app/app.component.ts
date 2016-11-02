@@ -103,14 +103,6 @@ export class MyApp {
       });
     }
 
-  showTabs(){
-    console.log("showing Tabs")
-    this.runTab = RunningPage;
-    this.parcoursTab = TracksPage;
-    this.settingsTab = SettingsPage;
-    this.recordingTab = RecordingPage;
-  }
-
   updateTracks(){
     console.log("Updating tracks");
   }

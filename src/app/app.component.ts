@@ -1,9 +1,9 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {Http} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import 'rxjs/Rx';
 
-import {Platform, MenuController, Nav, Tabs} from 'ionic-angular';
+import {Platform, MenuController} from 'ionic-angular';
 
 import {StatusBar} from 'ionic-native';
 
@@ -23,7 +23,6 @@ declare var google;
   templateUrl: 'app.html'
 })
 export class MyApp {
-  @ViewChild(Nav) nav:Nav;
 
   private readonly HASH_KEY: string = "PARCOURS_HASH";
 
@@ -60,7 +59,7 @@ export class MyApp {
 
 
   private updateDatabase(){
-      this.http.get('http://parcours-mytennis.rhcloud.com/parcours/hash').map(response => response.text()).subscribe(
+      this.http.get('https://ed140ztplk.execute-api.us-west-2.amazonaws.com/prod/vitaparcours/hash').map(response => response.text()).subscribe(
         hash => {
           this.trackService.getOption(this.HASH_KEY).subscribe(option => {
             if (option === null || option !== hash){
@@ -79,7 +78,7 @@ export class MyApp {
       }
 
   private updateVitaparcours(hash: string){
-      this.http.get('http://parcours-mytennis.rhcloud.com/parcours').map(response => response.text()).subscribe(
+      this.http.get('https://ed140ztplk.execute-api.us-west-2.amazonaws.com/prod/vitaparcours').map(response => response.text()).subscribe(
         json => {
           let tracks: Array<Track> = JSON.parse(json);
           console.log("Received " + tracks.length + " vitaparcours");
@@ -105,6 +104,7 @@ export class MyApp {
 
   updateTracks(){
     console.log("Updating tracks");
+    //this.nav.push(TracksPage);
   }
 
   showConfirmationDialog(hash: string) {

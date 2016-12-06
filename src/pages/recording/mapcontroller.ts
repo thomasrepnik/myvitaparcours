@@ -1,7 +1,7 @@
 import {Position, Track} from "../../providers/track-service/track-service";
 import {isUndefined} from "ionic-angular/util/util";
 import {
-  GoogleMap, GoogleMapsEvent, GoogleMapsLatLng, CameraPosition, GoogleMapsMarkerOptions,
+  GoogleMap, GoogleMapsEvent, GoogleMapsLatLng,
   GoogleMapsMarker, GoogleMapsPolyline, GoogleMapsAnimation
 } from 'ionic-native';
 

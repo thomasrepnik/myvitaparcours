@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {TrackService} from "../../providers/track-service/track-service";
-import {Tabs, NavController} from "ionic-angular/index";
+import {NavController} from "ionic-angular/index";
 
 
 @Component({
@@ -22,5 +22,10 @@ export class SettingsPage {
     this.trackService.clearDatabase();
   }
 
+
+  ionViewCanLeave(): boolean{
+    console.log("nix da..");
+    return false;
+  }
 
 }

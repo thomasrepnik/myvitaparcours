@@ -5,8 +5,6 @@ import {TrackUtil} from "../recording/trackUtil";
 import {TrackRunner} from "./trackrunner";
 import {isUndefined} from "ionic-angular/util/util";
 import {Station} from "./station";
-import {Observable} from 'rxjs/Rx';
-
 
 
 @Component({

@@ -1,6 +1,6 @@
 import {Component, ViewChild, ElementRef} from '@angular/core';
 import {NavController, ToastController, AlertController} from 'ionic-angular';
-import {TrackService, Position} from "../../providers/track-service/track-service";
+import {TrackService} from "../../providers/track-service/track-service";
 import {MapController} from "./mapcontroller";
 import {TrackUtil} from "./trackUtil";
 
